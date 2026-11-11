@@ -1,192 +1,286 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Tic-Tac-Toe</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Todo List (CRUD)</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+    }
 
-        body {
-            background-color: #1e1e2e;
-            color: #cdd6f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #fff;
-        }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
 
-        #status {
-            font-size: 1.25rem;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
 
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 5px;
-            background-color: #45475a;
-            padding: 5px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: var(--primary);
+    }
 
-        .cell {
-            background-color: #313244;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: background-color 0.2s;
-        }
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
 
-        .cell:hover {
-            background-color: #45475a;
-        }
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
 
-        .cell.x {
-            color: #f38ba8;
-        }
+    input[type="text"]:focus {
+      border-color: var(--primary);
+    }
 
-        .cell.o {
-            color: #89b4fa;
-        }
+    button {
+      padding: 12px 20px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
 
-        #reset-btn {
-            margin-top: 25px;
-            background-color: #a6e3a1;
-            color: #11111b;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
+    button:hover {
+      background-color: var(--primary-hover);
+    }
 
-        #reset-btn:hover {
-            opacity: 0.9;
-        }
-    </style>
+    .todo-list {
+      list-style: none;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+
+    .todo-item.completed .todo-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .todo-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .todo-content input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .todo-text {
+      font-size: 16px;
+      word-break: break-word;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-edit {
+      background-color: var(--warning);
+    }
+    .btn-edit:hover {
+      background-color: #d97706;
+    }
+
+    .btn-delete {
+      background-color: var(--danger);
+    }
+    .btn-delete:hover {
+      background-color: #dc2626;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 20px 0;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Tic-Tac-Toe</h1>
-    <div id="status">Giliran Pemain: X</div>
+  <div class="container">
+    <h1>Todo List</h1>
+    
+    <!-- Create / Form Tambah Todo -->
+    <form id="todo-form" class="form-group">
+      <input type="text" id="todo-input" placeholder="Masukkan kegiatan baru..." required autocomplete="off">
+      <button type="submit" id="submit-btn">Tambah</button>
+    </form>
 
-    <div class="board" id="board">
-        <div class="cell" data-index="0"></div>
-        <div class="cell" data-index="1"></div>
-        <div class="cell" data-index="2"></div>
-        <div class="cell" data-index="3"></div>
-        <div class="cell" data-index="4"></div>
-        <div class="cell" data-index="5"></div>
-        <div class="cell" data-index="6"></div>
-        <div class="cell" data-index="7"></div>
-        <div class="cell" data-index="8"></div>
-    </div>
+    <!-- Read / Daftar Todo -->
+    <ul id="todo-list" class="todo-list"></ul>
+    
+    <div id="empty-state" class="empty-state">Belum ada kegiatan. Silakan tambahkan!</div>
+  </div>
 
-    <button id="reset-btn">Main Lagi / Reset</button>
+  <script>
+    // State Aplikasi
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+    let editId = null;
 
-    <script>
-        const boardElement = document.getElementById('board');
-        const cells = document.querySelectorAll('.cell');
-        const statusText = document.getElementById('status');
-        const resetBtn = document.getElementById('reset-btn');
+    // DOM Elements
+    const todoForm = document.getElementById('todo-form');
+    const todoInput = document.getElementById('todo-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const todoList = document.getElementById('todo-list');
+    const emptyState = document.getElementById('empty-state');
 
-        let board = ['', '', '', '', '', '', '', '', ''];
-        let currentPlayer = 'X';
-        let isGameActive = true;
+    // Simpan ke LocalStorage
+    function saveTodos() {
+      localStorage.setItem('todos', JSON.stringify(todos));
+    }
 
-        const winningConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Baris
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Kolom
-            [0, 4, 8], [2, 4, 6]            // Diagonal
-        ];
+    // READ: Tampilkan daftar Todo
+    function renderTodos() {
+      todoList.innerHTML = '';
+      
+      if (todos.length === 0) {
+        emptyState.style.display = 'block';
+      } else {
+        emptyState.style.display = 'none';
+      }
 
-        function handleCellClick(e) {
-            const clickedCell = e.target;
-            const clickedIndex = clickedCell.getAttribute('data-index');
+      todos.forEach(todo => {
+        const li = document.createElement('li');
+        li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+        
+        li.innerHTML = `
+          <div class="todo-content">
+            <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleComplete(${todo.id})">
+            <span class="todo-text">${escapeHtml(todo.text)}</span>
+          </div>
+          <div class="actions">
+            <button class="btn-edit" onclick="startEdit(${todo.id})">Edit</button>
+            <button class="btn-delete" onclick="deleteTodo(${todo.id})">Hapus</button>
+          </div>
+        `;
+        
+        todoList.appendChild(li);
+      });
+    }
 
-            // Cek apakah kotak sudah diisi atau game sudah selesai
-            if (board[clickedIndex] !== '' || !isGameActive) {
-                return;
-            }
+    // CREATE & UPDATE: Tambah atau Perbarui Todo
+    todoForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const text = todoInput.value.trim();
+      if (!text) return;
 
-            // Perbarui state papan dan UI
-            board[clickedIndex] = currentPlayer;
-            clickedCell.textContent = currentPlayer;
-            clickedCell.classList.add(currentPlayer.toLowerCase());
+      if (editId !== null) {
+        // UPDATE
+        todos = todos.map(todo => todo.id === editId ? { ...todo, text } : todo);
+        editId = null;
+        submitBtn.textContent = 'Tambah';
+      } else {
+        // CREATE
+        const newTodo = {
+          id: Date.now(),
+          text: text,
+          completed: false
+        };
+        todos.push(newTodo);
+      }
 
-            checkResult();
+      todoInput.value = '';
+      saveTodos();
+      renderTodos();
+    });
+
+    // UPDATE Status (Selesai/Belum)
+    function toggleComplete(id) {
+      todos = todos.map(todo => {
+        if (todo.id === id) {
+          return { ...todo, completed: !todo.completed };
         }
+        return todo;
+      });
+      saveTodos();
+      renderTodos();
+    }
 
-        function checkResult() {
-            let roundWon = false;
+    // Persiapan UPDATE (Isi formulir dengan teks item yang diedit)
+    function startEdit(id) {
+      const todo = todos.find(t => t.id === id);
+      if (todo) {
+        todoInput.value = todo.text;
+        todoInput.focus();
+        editId = id;
+        submitBtn.textContent = 'Simpan';
+      }
+    }
 
-            for (let i = 0; i < winningConditions.length; i++) {
-                const [a, b, c] = winningConditions[i];
-                if (board[a] === '' || board[b] === '' || board[c] === '') {
-                    continue;
-                }
-                if (board[a] === board[b] && board[b] === board[c]) {
-                    roundWon = true;
-                    break;
-                }
-            }
+    // DELETE: Hapus Todo
+    function deleteTodo(id) {
+      todos = todos.filter(todo => todo.id !== id);
+      if (editId === id) {
+        editId = null;
+        todoInput.value = '';
+        submitBtn.textContent = 'Tambah';
+      }
+      saveTodos();
+      renderTodos();
+    }
 
-            if (roundWon) {
-                statusText.textContent = `Pemenang: ${currentPlayer}! 🎉`;
-                isGameActive = false;
-                return;
-            }
+    // Keamanan sederhana untuk karakter HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
 
-            // Cek apakah hasil Seri (Draw)
-            let roundDraw = !board.includes('');
-            if (roundDraw) {
-                statusText.textContent = `Hasil: Seri / Draw! 🤝`;
-                isGameActive = false;
-                return;
-            }
-
-            // Ganti giliran pemain
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            statusText.textContent = `Giliran Pemain: ${currentPlayer}`;
-        }
-
-        function resetGame() {
-            board = ['', '', '', '', '', '', '', '', ''];
-            isGameActive = true;
-            currentPlayer = 'X';
-            statusText.textContent = `Giliran Pemain: ${currentPlayer}`;
-
-            cells.forEach(cell => {
-                cell.textContent = '';
-                cell.classList.remove('x', 'o');
-            });
-        }
-
-        // Event Listeners
-        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
-        resetBtn.addEventListener('click', resetGame);
-    </script>
+    // Inisialisasi tampilan awal
+    renderTodos();
+  </script>
 </body>
 </html>
